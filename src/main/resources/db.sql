@@ -3,29 +3,29 @@
 
 --classes
 --Node
-create class _BB_NodeVertex extends V;
+--create class _BB_NodeVertex extends V;
 
 --Node class should be abstract but we cannot declare it as abstrat due the index on the id field
-create class _BB_Node  extends ORestricted;
-create property _BB_NodeVertex._node link _BB_Node;
-create property _BB_Node._creation_date datetime;
-create property _BB_Node._links link _BB_NodeVertex;
-create property _BB_Node.id String;
+--create class _BB_Node  extends ORestricted;
+--create property _BB_NodeVertex._node link _BB_Node;
+--create property _BB_Node._creation_date datetime;
+--create property _BB_Node._links link _BB_NodeVertex;
+--create property _BB_Node.id String;
 
 --user
-create class _BB_User extends _BB_Node;
-create class _BB_UserAttributes extends ORestricted;
-create property _BB_User.visibleByAnonymousUsers link _BB_UserAttributes;
-create property _BB_User.visibleByRegisteredUsers link _BB_UserAttributes;
-create property _BB_User.visibleByFriend link _BB_UserAttributes;
-create property _BB_User.visibleByTheUser link _BB_UserAttributes;
-create property _BB_User._audit embedded;
-create property _BB_User.user link ouser;
+--create class _BB_User extends _BB_Node;
+--create class _BB_UserAttributes extends ORestricted;
+--create property _BB_User.visibleByAnonymousUsers link _BB_UserAttributes;
+--create property _BB_User.visibleByRegisteredUsers link _BB_UserAttributes;
+--create property _BB_User.visibleByFriend link _BB_UserAttributes;
+--create property _BB_User.visibleByTheUser link _BB_UserAttributes;
+--create property _BB_User._audit embedded;
+--create property _BB_User.user link ouser;
 
 
 --admin user
-insert into _BB_User set user = (select from ouser where name='admin'), _links = (insert into _BB_NodeVertex set _node=null), _creation_date = sysdate(), signUpDate = sysdate();
-update _BB_NodeVertex set _node=(select from _BB_User where user.name='admin');
+--insert into _BB_User set user = (select from ouser where name='admin'), _links = (insert into _BB_NodeVertex set _node=null), _creation_date = sysdate(), signUpDate = sysdate();
+--update _BB_NodeVertex set _node=(select from _BB_User where user.name='admin');
 
 
 --Address

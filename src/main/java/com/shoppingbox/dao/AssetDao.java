@@ -16,12 +16,10 @@
  */
 package com.shoppingbox.dao;
 
-import com.shoppingbox.dao.exception.InvalidModelException;
-import com.shoppingbox.dao.exception.SqlInjectionException;
-import com.shoppingbox.enumerations.DefaultRoles;
-import com.shoppingbox.enumerations.Permissions;
-import com.shoppingbox.util.QueryParams;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.shoppingbox.dao.exception.InvalidClassException;
+import com.shoppingbox.dao.exception.SqlInjectionException;
+import com.shoppingbox.util.QueryParams;
 
 import java.util.List;
 
@@ -45,12 +43,12 @@ public class AssetDao extends NodeDao {
 	public ODocument create(String name) throws Throwable{
 		ODocument asset=super.create();
 		asset.field("name",name);
-		super.grantPermission(asset, Permissions.ALLOW_READ,DefaultRoles.getORoles());
+//		super.grantPermission(asset, Permissions.ALLOW_READ,DefaultRoles.getORoles());
 		return asset;
 	}
 	
 	@Override
-	public  void save(ODocument document) throws InvalidModelException{
+	public  void save(ODocument document) throws InvalidClassException {
 		super.save(document);
 	}
 	

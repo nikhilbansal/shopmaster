@@ -16,7 +16,6 @@
  */
 package com.shoppingbox.dao;
 
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.security.ORole;
@@ -29,13 +28,11 @@ import com.shoppingbox.db.DbHelper;
 import com.shoppingbox.enumerations.DefaultRoles;
 import com.shoppingbox.exception.UserNotFoundException;
 import com.shoppingbox.util.QueryParams;
-import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.security.InvalidParameterException;
-import java.util.Date;
 import java.util.List;
 
 
@@ -90,17 +87,18 @@ public class UserDao extends NodeDao  {
 			user=db.getMetadata().getSecurity().createUser(username,password,new String[]{role});
 		}
 //        graph.createVertexType(CLASS_VERTEX_NAME);
-        Vertex vertex = graph.addVertex(CLASS_VERTEX_NAME, CLASS_VERTEX_NAME);
-        ODatabaseDocumentTx db = DbHelper.getODatabaseDocumentTxConnection();
-		ODocument doc = new ODocument(this.MODEL_NAME);
-		doc.field(FIELD_LINK_TO_VERTEX,vertex);
-		doc.field(FIELD_CREATION_DATE,new Date());
-		vertex.setProperty(FIELD_TO_DOCUMENT_FIELD,doc);
+//        Vertex vertex = graph.addVertex(CLASS_VERTEX_NAME, CLASS_VERTEX_NAME);
+//        ODatabaseDocumentTx db = DbHelper.getODatabaseDocumentTxConnection();
+//		ODocument doc = new ODocument(this.MODEL_NAME);
+//		doc.field(FIELD_LINK_TO_VERTEX,vertex);
+//		doc.field(FIELD_CREATION_DATE,new Date());
+//		vertex.setProperty(FIELD_TO_DOCUMENT_FIELD,doc);
 
-		doc.field(USER_LINK,user.getDocument().getIdentity());
-		doc.save();
-        graph.commit();
-		return doc;
+//		doc.field(USER_LINK,user.getDocument().getIdentity());
+//		doc.save();
+//        graph.commit();
+//		return doc;
+        return null;
 	}
 
 	public boolean existsUserName(String username){
@@ -152,5 +150,13 @@ public class UserDao extends NodeDao  {
 		user.setAccountStatus(STATUSES.ACTIVE);
 		user.save();
 	}
+
+//    public interface AccountDAO{
+//        public boolean save(Account account);
+//        public boolean update(Account account);
+//        public boolean findByAccountNumber(int accountNumber);
+//        public boolean delete(Account account);
+//
+//    }
 
 }

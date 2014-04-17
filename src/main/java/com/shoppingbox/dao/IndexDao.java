@@ -9,7 +9,7 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 
 import java.util.List;
 
-public abstract class IndexDao{
+public abstract class IndexDao {
 	public final String INDEX_NAME;
 	public static final String MODEL_NAME = "_BB_Index";
 	protected ODatabaseRecordTx db;
@@ -24,7 +24,7 @@ public abstract class IndexDao{
 	
 	public IndexDao put (String key,Object value){
 		String indexKey = this.INDEX_NAME+":"+key;
-		ODocument newValue = getODocument(key); 
+		ODocument newValue = getODocument(key);
 		if(newValue==null){
 			newValue = new ODocument(MODEL_NAME);
 			newValue.field("key",indexKey);

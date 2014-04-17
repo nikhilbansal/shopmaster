@@ -59,7 +59,7 @@ public class RoleService {
 		for (DefaultRoles r : DefaultRoles.values()){
             ORole newRole;
 			if (logger.isDebugEnabled()) logger.debug("creating " + r.toString() + "...");
-			if (!r.isOrientRole()){ //creates the new baasbox role
+			if (!r.isOrientRole()){ //creates the new shoppingbox role
                 newRole = RoleDao.createRole(r.toString(), r.getInheritsFrom());
 			}else{	//retrieve the existing OrientDB role
 				newRole=r.getORole();
@@ -74,12 +74,6 @@ public class RoleService {
 			newRole.save();
         }
 
-	}
-
-	public static List<ODocument> getRoles() throws SqlInjectionException {
-		GenericDao dao = GenericDao.getInstance();
-		QueryParams criteria = QueryParams.getInstance().where("name not like \""+RoleDao.FRIENDS_OF_ROLE+"%\" and assignable=true").orderBy("name asc");
-		return dao.executeQuery("orole", criteria);
 	}
 	
 	/***

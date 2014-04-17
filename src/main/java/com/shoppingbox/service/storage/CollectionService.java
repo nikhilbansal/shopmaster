@@ -18,8 +18,8 @@ package com.shoppingbox.service.storage;
 
 
 import com.shoppingbox.dao.CollectionDao;
+import com.shoppingbox.dao.exception.InvalidClassException;
 import com.shoppingbox.dao.exception.InvalidCollectionException;
-import com.shoppingbox.dao.exception.InvalidModelException;
 import com.shoppingbox.dao.exception.SqlInjectionException;
 import com.shoppingbox.util.QueryParams;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -34,7 +34,7 @@ public class CollectionService {
 		dao.delete(collectionName);
 	}
 	
-	public static ODocument create(String collectionName) throws Throwable, InvalidCollectionException, InvalidModelException{
+	public static ODocument create(String collectionName) throws Throwable, InvalidCollectionException, InvalidClassException {
 		CollectionDao dao = CollectionDao.getInstance();
 		ODocument doc=dao.create(collectionName);
 		return doc;

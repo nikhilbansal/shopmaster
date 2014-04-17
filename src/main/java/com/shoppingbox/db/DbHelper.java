@@ -88,7 +88,7 @@ public class DbHelper {
 		ODatabaseRecordTx db = getConnection();
 		if (!isInTransaction()){
 			if (logger.isTraceEnabled()) logger.trace("Begin transaction");
-			//db.begin();
+//			db.begin();
 		}
 	}
 
@@ -165,11 +165,7 @@ public class DbHelper {
 		Integer updateQueryResult = command.execute((Object[])params);
 		return updateQueryResult;
 	}
-	public static List<ODocument> commandExecute(OCommandRequest command, Object[] params){
-          List<ODocument> queryResult = command.execute((Object[])params);
-          return queryResult;
-	}
-	
+
 	/**
 	 * Prepares the command API to execute an arbitrary SQL statement
 	 * @param theQuery
@@ -350,7 +346,7 @@ public class DbHelper {
 		if (logger.isTraceEnabled()) logger.trace("Method End");
 	}
 
-	@Deprecated
+//	@Deprecated
 	public static void dropOrientDefault(){
 		if (logger.isTraceEnabled()) logger.trace("Method Start");
 		//nothing to do here
@@ -359,9 +355,6 @@ public class DbHelper {
 
 	public static void populateDB(ODatabaseRecordTx db) throws IOException{
         logger.info("Populating the db...");
-//		InputStream is;
-//		if (Play.application().isProd()) is	=Play.application().resourceAsStream(SCRIPT_FILE_NAME);
-//		else is = new FileInputStream(Play.application().getFile("conf/"+SCRIPT_FILE_NAME));
         InputStream is = DbHelper.class.getClassLoader().getResourceAsStream(SCRIPT_FILE_NAME);
 		List<String> script=IOUtils.readLines(is, "UTF-8");
 		is.close();

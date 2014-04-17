@@ -39,9 +39,9 @@ public enum DefaultRoles {
 	private String inheritsFrom;
 	private ORole orole;
 	
-	private DefaultRoles(String role,String inheritsFrom,String descrition,boolean assignable,boolean isOrientRole){
+	private DefaultRoles(String role,String inheritsFrom,String description,boolean assignable,boolean isOrientRole){
 		this.role=role;
-		this.description=descrition;
+		this.description=description;
 		this.assignable=assignable;
 		this.orientRole=isOrientRole;
 		this.inheritsFrom=inheritsFrom;

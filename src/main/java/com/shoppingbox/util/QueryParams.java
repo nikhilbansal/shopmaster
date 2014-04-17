@@ -61,8 +61,7 @@ public class QueryParams implements IQueryParametersKeys{
 		if (orderBy!=null) this.orderBy = orderBy;
 		if (depth!=null) this.depth = depth;
 		if (param!=null) {
-			String[] params = {param};
-			this.params= params ;
+            this.params= new String[]{param};
 		}
 		if (logger.isTraceEnabled()) logger.trace("Method End");
 	}

@@ -71,62 +71,6 @@ public class PermissionsHelper {
 		if (logger.isTraceEnabled()) logger.trace("Method End");
 		return document;		
 	}
-
-	/* Delayed due an OrientDb bug, see patch below
-	public static ODocument grant(ODocument document, Permissions permission,
-			ORole role) {
-		if (logger.isTraceEnabled()) logger.trace("Method Start");
-		if (role==null){
-			logger.warn("role is null! Grant command skipped");
-			return document;
-		}
-		ODatabaseRecordTx db = DbHelper.getConnection();
-		db.getMetadata().getSecurity().allowRole(document, permission.toString(), role.getName());
-		document.save(); 
-		if (logger.isTraceEnabled()) logger.trace("Method End");
-		return document;
-	}
-	
-	public static ODocument grant(ODocument document, Permissions permission,
-			OUser user) {
-		if (logger.isTraceEnabled()) logger.trace("Method Start");
-		if (user==null){
-			logger.warn("user is null! Grant command skipped");
-			return document;
-		}		
-		ODatabaseRecordTx db = DbHelper.getConnection();
-		db.getMetadata().getSecurity().allowUser(document, permission.toString(), user.getName());
-		if (logger.isTraceEnabled()) logger.trace("Method End");
-		return document;
-	}
-	
-	public static ODocument revoke(ODocument document, Permissions permission,
-			ORole role) {
-		if (logger.isTraceEnabled()) logger.trace("Method Start");
-		if (role==null){
-			logger.warn("role is null! Revoke command skipped");
-			return document;
-		}
-		ODatabaseRecordTx db = DbHelper.getConnection();
-		db.getMetadata().getSecurity().disallowRole(document, permission.toString(), role.getName());
-		document.save(); 
-		if (logger.isTraceEnabled()) logger.trace("Method End");
-		return document;
-	}
-	
-	public static ODocument revoke(ODocument document, Permissions permission,
-			OUser user) {
-		if (logger.isTraceEnabled()) logger.trace("Method Start");
-		if (user==null){
-			logger.warn("user is null! Revoke command skipped");
-			return document;
-		}		
-		ODatabaseRecordTx db = DbHelper.getConnection();
-		db.getMetadata().getSecurity().disallowUser(document, permission.toString(), user.getName());
-		if (logger.isTraceEnabled()) logger.trace("Method End");
-		return document;
-	}
-*/
 	
 	public static ODocument grant(ODocument document, Permissions permission,
 			ORole role) {

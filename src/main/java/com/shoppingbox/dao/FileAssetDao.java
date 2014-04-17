@@ -16,14 +16,12 @@
  */
 package com.shoppingbox.dao;
 
-import com.shoppingbox.dao.exception.InvalidModelException;
-import com.shoppingbox.dao.exception.SqlInjectionException;
-import com.shoppingbox.enumerations.DefaultRoles;
-import com.shoppingbox.enumerations.Permissions;
-import com.shoppingbox.util.QueryParams;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ORecordBytes;
+import com.shoppingbox.dao.exception.InvalidClassException;
+import com.shoppingbox.dao.exception.SqlInjectionException;
+import com.shoppingbox.util.QueryParams;
 
 import java.util.HashMap;
 import java.util.List;
@@ -56,8 +54,8 @@ public class FileAssetDao extends NodeDao {
 		asset.field("fileName",fileName);
 		asset.field("contentType",contentType);
 		asset.field("contentLength",content.length);
-		super.grantPermission(asset, Permissions.ALLOW_READ,DefaultRoles.getORoles());
-		super.grantPermission(asset, Permissions.ALLOW_UPDATE,DefaultRoles.getORoles()); //this is necessary due the resize API
+//		super.grantPermission(asset, Permissions.ALLOW_READ,DefaultRoles.getORoles());
+//		super.grantPermission(asset, Permissions.ALLOW_UPDATE,DefaultRoles.getORoles()); //this is necessary due the resize API
 		return asset;
 	}
 	
@@ -68,18 +66,18 @@ public class FileAssetDao extends NodeDao {
 		return listOfAssets.get(0);
 	}
 	
-	public ORecordBytes getBinary(ODocument doc) throws InvalidModelException{
+	public ORecordBytes getBinary(ODocument doc) throws InvalidClassException {
 		super.checkModelDocument(doc);
 		return doc.field(BINARY_FIELD_NAME);
 	}
 	
-	public byte[] getBinaryAsByte(ODocument doc) throws InvalidModelException{
+	public byte[] getBinaryAsByte(ODocument doc) throws InvalidClassException {
 			super.checkModelDocument(doc);
 			ORecordBytes binary=doc.field(BINARY_FIELD_NAME);
 			return binary.toStream();
 	}
 
-	public ODocument setBinary(ODocument doc, byte[] content) throws InvalidModelException {
+	public ODocument setBinary(ODocument doc, byte[] content) throws InvalidClassException {
 		super.checkModelDocument(doc);
 		ORecordBytes record = new ORecordBytes(content);
 		doc.field(BINARY_FIELD_NAME,record);
@@ -87,14 +85,14 @@ public class FileAssetDao extends NodeDao {
 		return doc;
 	}
 
-	public ODocument setContentType(ODocument doc, String contentType) throws InvalidModelException {
+	public ODocument setContentType(ODocument doc, String contentType) throws InvalidClassException {
 		super.checkModelDocument(doc);
 		doc.field(CONTENT_TYPE_FIELD_NAME, contentType);
 		return doc;
 	}
 	
 	
-	public  byte[] getStoredResizedPicture(ODocument asset, String sizePattern) throws InvalidModelException{
+	public  byte[] getStoredResizedPicture(ODocument asset, String sizePattern) throws InvalidClassException {
 		super.checkModelDocument(asset);
 		Map<String,ORID> resizedMap=(Map<String,ORID>) asset.field("resized");
 		if (resizedMap!=null && resizedMap.containsKey(sizePattern)){
@@ -104,7 +102,7 @@ public class FileAssetDao extends NodeDao {
 		return null;
 	}
 	
-	public  void storeResizedPicture(ODocument asset,String sizePattern, byte[] resizedImage) throws InvalidModelException {
+	public  void storeResizedPicture(ODocument asset,String sizePattern, byte[] resizedImage) throws InvalidClassException {
 		super.checkModelDocument(asset);
 		Map<String,ORID> resizedMap=(Map<String,ORID>) asset.field("resized");
 		if (resizedMap==null) resizedMap=new HashMap<String,ORID>();
@@ -114,7 +112,7 @@ public class FileAssetDao extends NodeDao {
 	}
 	
 	@Override
-	public  void save(ODocument document) throws InvalidModelException{
+	public  void save(ODocument document) throws InvalidClassException {
 		super.save(document);
 	}	
 }

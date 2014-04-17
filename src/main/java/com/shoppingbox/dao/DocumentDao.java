@@ -16,8 +16,8 @@
  */
 package com.shoppingbox.dao;
 
+import com.shoppingbox.dao.exception.InvalidClassException;
 import com.shoppingbox.dao.exception.InvalidCollectionException;
-import com.shoppingbox.dao.exception.InvalidModelException;
 import com.shoppingbox.dao.exception.SqlInjectionException;
 import com.shoppingbox.db.DbHelper;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -54,7 +54,7 @@ public class DocumentDao extends NodeDao {
 		return doc;
 	}//getNewModelInstance
 	
-	public void save(ODocument document) throws InvalidModelException{
+	public void save(ODocument document) throws InvalidClassException {
 		super.save(document);
 	}
 

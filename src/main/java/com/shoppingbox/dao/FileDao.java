@@ -1,6 +1,6 @@
 package com.shoppingbox.dao;
 
-import com.shoppingbox.dao.exception.InvalidModelException;
+import com.shoppingbox.dao.exception.InvalidClassException;
 import com.shoppingbox.dao.exception.SqlInjectionException;
 import com.shoppingbox.util.QueryParams;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
@@ -75,25 +75,25 @@ public class FileDao extends NodeDao  {
 	}
 	
 	@Override
-	public  void save(ODocument document) throws InvalidModelException{
+	public  void save(ODocument document) throws InvalidClassException {
 		super.save(document);
 	}
 
-	public ODocument getById(String id) throws SqlInjectionException, InvalidModelException {
+	public ODocument getById(String id) throws SqlInjectionException, InvalidClassException {
 		QueryParams criteria=QueryParams.getInstance().where("id=?").params(new String[]{id});
 		List<ODocument> listOfFiles = this.get(criteria);
 		if (listOfFiles==null || listOfFiles.size()==0) return null;
 		ODocument doc=listOfFiles.get(0);
 		try{
 			checkModelDocument((ODocument)doc);
-		}catch(InvalidModelException e){
+		}catch(InvalidClassException e){
 			//the id may reference a ORecordBytes which is not a ODocument
-			throw new InvalidModelException("the id " + id + " is not a file " + this.MODEL_NAME);
+			throw new InvalidClassException("the id " + id + " is not a file " + this.MODEL_NAME);
 		}
 		return doc;
 	}	
 	
-	public  byte[] getStoredResizedPicture(ODocument file, String sizePattern) throws InvalidModelException{
+	public  byte[] getStoredResizedPicture(ODocument file, String sizePattern) throws InvalidClassException {
 		super.checkModelDocument(file);
 		Map<String,ORID> resizedMap=(Map<String,ORID>) file.field(RESIZED_IMAGE_FIELD_NAME);
 		if (resizedMap!=null && resizedMap.containsKey(sizePattern)){
@@ -103,7 +103,7 @@ public class FileDao extends NodeDao  {
 		return null;
 	}
 	
-	public  void storeResizedPicture(ODocument file,String sizePattern, byte[] resizedImage) throws InvalidModelException {
+	public  void storeResizedPicture(ODocument file,String sizePattern, byte[] resizedImage) throws InvalidClassException {
 		super.checkModelDocument(file);
 		Map<String,ORID> resizedMap=(Map<String,ORID>) file.field(RESIZED_IMAGE_FIELD_NAME);
 		if (resizedMap==null) resizedMap=new HashMap<String,ORID>();
