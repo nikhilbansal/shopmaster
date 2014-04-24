@@ -55,6 +55,8 @@ public class Global {
             try {
                 final String url = "plocal:" + BBConfiguration.configuration.getString(BBConfiguration.DB_PATH);
                 db = new ODatabaseDocumentTx(url);
+                db.getLevel1Cache().invalidate();
+                db.getLevel1Cache().clear();
                 if (!db.getURL().startsWith("remote:") && !db.exists()) {
                     logger.info("DB does not exist, BaasBox will create a new one");
                     OrientGraph graph = new OrientGraph(db.getURL());
@@ -70,7 +72,6 @@ public class Global {
             } finally {
                 if (db != null && !db.isClosed()) db.close();
             }
-            logger.info("DB has been created successfully");
         } catch (Throwable e) {
             logger.error("!! Error initializing BaasBox!", e);
             logger.error("Abnormal BaasBox termination.");
@@ -87,7 +88,7 @@ public class Global {
             if (justCreated) {
                 try {
                     //we MUST use admin/admin because the db was just created
-                    db = DbHelper.open(BBConfiguration.getAPPCODE(), "admin", "admin");
+                    db = DbHelper.open("admin", "admin");
                     DbHelper.setupDb(db);
                 } catch (Throwable e) {
                     logger.error("!! Error initializing BaasBox!", e);
@@ -102,28 +103,6 @@ public class Global {
             logger.error("!! Error initializing BaasBox!", e);
             logger.error("Abnormal BaasBox termination.");
         }
-        logger.info("Updating default users passwords...");
-        try {
-            db = DbHelper.open(BBConfiguration.getAPPCODE(), BBConfiguration.getBaasBoxAdminUsername(), BBConfiguration.getBaasBoxAdminPassword());
-            DbHelper.updateDefaultUsers();
-        } catch (Exception e) {
-            logger.error("!! Error initializing BaasBox!", e);
-            logger.error("Abnormal BaasBox termination.");
-            return;
-        } finally {
-            if (db != null && !db.isClosed()) db.close();
-        }
-
-        try {
-            db = DbHelper.open(BBConfiguration.getAPPCODE(), BBConfiguration.getBaasBoxAdminUsername(), BBConfiguration.getBaasBoxAdminPassword());
-        } catch (Exception e) {
-            logger.error("!! Error initializing BaasBox!", e);
-            logger.error("Abnormal BaasBox termination.");
-            System.exit(-1);
-        } finally {
-            //TODO keeping the connection open now
-            //if (db!=null && !db.isClosed()) db.close();
-        }
     }
 
     public void onStop() {
@@ -134,7 +113,7 @@ public class Global {
             OrientGraph db = null;
             try {
                 if (DbHelper.getConnection() == null || DbHelper.getConnection().isClosed()) {
-                    DbHelper.open(BBConfiguration.getAPPCODE(), "admin", "admin");
+                    DbHelper.open("admin", "admin");
                 }
                 db = new OrientGraph(DbHelper.getODatabaseDocumentTxConnection());
                 if (db.getRawGraph().exists()) {

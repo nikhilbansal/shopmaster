@@ -87,9 +87,9 @@ public class BBConfiguration implements IBBConfigurationKeys {
 		return Boolean.valueOf(configuration.getString(WRAP_RESPONSE));
 	}
 	
-	public static String getAPPCODE() {
-		return configuration.getString(APP_CODE);
-	}
+//	public static String getAPPCODE() {
+//		return configuration.getString(APP_CODE);
+//	}
 	
 	public static String getDBBackupDir() {
 		return configuration.getString(DB_BACKUP_PATH);

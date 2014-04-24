@@ -20,6 +20,7 @@ package com.shoppingbox.db;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.document.ODatabaseDocumentPool;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.ODatabaseRecordTx;
 import com.orientechnologies.orient.core.db.tool.ODatabaseExport;
@@ -238,28 +239,24 @@ public class DbHelper {
 
 	}
 
-	public static ODatabaseRecordTx getOrOpenConnection(String appcode, String username,String password) throws InvalidAppCodeException {
-		ODatabaseRecordTx db= getConnection();
-		if (db==null || db.isClosed()) db = open ( appcode,  username, password) ;
-		return db;
-	}
-	
-	public static ODatabaseRecordTx open(String appcode, String username,String password) throws InvalidAppCodeException {
+
+	public static ODatabaseRecordTx open(String username,String password) throws InvalidAppCodeException {
 		
-		if (appcode==null || !appcode.equals(BBConfiguration.configuration.getString(BBConfiguration.APP_CODE)))
-			throw new InvalidAppCodeException("Authentication info not valid or not provided: " + appcode + " is an Invalid App Code");
-		if(dbFreeze.get()){
-			throw new ShuttingDownDBException();
-		}
+//		if (appcode==null || !appcode.equals(BBConfiguration.configuration.getString(BBConfiguration.APP_CODE)))
+//			throw new InvalidAppCodeException("Authentication info not valid or not provided: " + appcode + " is an Invalid App Code");
+//		if(dbFreeze.get()){
+//            throw new ShuttingDownDBException();
+//        }
 		String databaseName=BBConfiguration.getDBDir();
 		if (logger.isDebugEnabled()) logger.debug("opening connection on db: " + databaseName + " for " + username);
-		
-		new ODatabaseDocumentTx("plocal:" + BBConfiguration.getDBDir()).open(username,password);
-		HooksManager.registerAll(getConnection());
-		
-		DbHelper.appcode.set(appcode);
-		DbHelper.username.set(username);
-		DbHelper.password.set(password);
+
+		//new ODatabaseDocumentTx("plocal:" + BBConfiguration.getDBDir()).open(username,password);
+        ODatabaseDocumentPool.global().acquire("plocal:" + BBConfiguration.getDBDir(), username, password);
+//		HooksManager.registerAll(getConnection());
+//
+//		DbHelper.appcode.set(appcode);
+//		DbHelper.username.set(username);
+//		DbHelper.password.set(password);
 		
 		return getConnection();
 	}
@@ -267,7 +264,7 @@ public class DbHelper {
 	public static ODatabaseRecordTx reconnectAsAdmin (){
 		getConnection().close();
 		try {
-			return open (appcode.get(),BBConfiguration.getBaasBoxAdminUsername(),BBConfiguration.getBaasBoxAdminPassword());
+			return open (BBConfiguration.getBaasBoxAdminUsername(),BBConfiguration.getBaasBoxAdminPassword());
 		} catch (InvalidAppCodeException e) {
 			throw new RuntimeException(e);
 		}
@@ -276,7 +273,7 @@ public class DbHelper {
 	public static ODatabaseRecordTx reconnectAsAuthenticatedUser (){
 		getConnection().close();
 		try {
-			return open (appcode.get(),getCurrentHTTPUsername(),getCurrentHTTPPassword());
+			return open (getCurrentHTTPUsername(),getCurrentHTTPPassword());
 		} catch (InvalidAppCodeException e) {
 			throw new RuntimeException(e);
 		}
@@ -291,6 +288,7 @@ public class DbHelper {
 	}
 
 	public static ODatabaseRecordTx getConnection(){
+//        logger.info("getConnection");
 		ODatabaseRecordTx db = null;
 		try {
 			db=(ODatabaseRecordTx)ODatabaseRecordThreadLocal.INSTANCE.get();
@@ -374,6 +372,7 @@ public class DbHelper {
 		DbHelper.dropOrientDefault();
 		populateDB(db);
 		createDefaultUsers();
+        updateDefaultUsers();
 	}
 
 	public static void exportData(String appcode,OutputStream os) throws UnableToExportDbException{

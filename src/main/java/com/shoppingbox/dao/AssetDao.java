@@ -48,8 +48,8 @@ public class AssetDao extends NodeDao {
 	}
 	
 	@Override
-	public  void save(ODocument document) throws InvalidClassException {
-		super.save(document);
+	public ODocument save(ODocument document) throws InvalidClassException {
+		return super.save(document);
 	}
 	
 	public ODocument getByName (String name) throws SqlInjectionException{

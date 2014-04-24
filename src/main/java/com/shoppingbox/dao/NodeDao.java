@@ -27,7 +27,7 @@ public abstract class NodeDao  {
 
     public final String CLASS_NAME;
 
-	protected ODatabaseRecordTx db;
+	public ODatabaseRecordTx db;
 
 	public NodeDao(String className) {
 		this.CLASS_NAME = className;
@@ -85,11 +85,12 @@ public abstract class NodeDao  {
         return null;
 	}
 
-	protected  void save(ODocument document) throws InvalidClassException {
+	protected ODocument save(ODocument document) throws InvalidClassException {
 		if (logger.isTraceEnabled()) logger.trace("Method Start");
 		checkModelDocument(document);
-		document.save();
+		ODocument savedODocument = document.save();
 		if (logger.isTraceEnabled()) logger.trace("Method End");
+        return savedODocument;
 	}
 
 	public void update(ODocument originalDocument, ODocument documentToMerge) throws UpdateOldVersionException  {

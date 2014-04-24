@@ -54,8 +54,8 @@ public class DocumentDao extends NodeDao {
 		return doc;
 	}//getNewModelInstance
 	
-	public void save(ODocument document) throws InvalidClassException {
-		super.save(document);
+	public ODocument save(ODocument document) throws InvalidClassException {
+		return super.save(document);
 	}
 
 

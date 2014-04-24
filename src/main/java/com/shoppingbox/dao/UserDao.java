@@ -28,7 +28,6 @@ import com.shoppingbox.db.DbHelper;
 import com.shoppingbox.enumerations.DefaultRoles;
 import com.shoppingbox.exception.UserNotFoundException;
 import com.shoppingbox.util.QueryParams;
-import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,8 +38,7 @@ import java.util.List;
 public class UserDao extends NodeDao  {
     final static Logger logger = LoggerFactory.getLogger(UserDao.class);
 
-	public final static String MODEL_NAME="_BB_User";
-	public final static String USER_LINK = "user";
+	public final static String CLASS_NAME="OUser";
 	private final static String USER_NAME_INDEX = "ouser.name";
 
 	public final static String USER_PUSH_TOKEN="pushToken";
@@ -48,12 +46,6 @@ public class UserDao extends NodeDao  {
 	public final static String USER_LOGIN_INFO="login_info";
 	public final static String SOCIAL_LOGIN_INFO="sso_tokens";
 
-	public final static String USER_ATTRIBUTES_CLASS = "_BB_UserAttributes";
-	public final static String ATTRIBUTES_VISIBLE_BY_ANONYMOUS_USER="visibleByAnonymousUsers";
-	public final static String ATTRIBUTES_VISIBLE_BY_REGISTERED_USER="visibleByRegisteredUsers";
-	public final static String ATTRIBUTES_VISIBLE_BY_FRIENDS_USER="visibleByFriends";
-	public final static String ATTRIBUTES_VISIBLE_ONLY_BY_THE_USER="visibleByTheUser";
-	public final static String USER_SIGNUP_DATE="signUpDate";
 	public final static String ATTRIBUTES_SYSTEM="system";
 	public static final String GENERATED_USERNAME = "generated_username";
 
@@ -62,7 +54,7 @@ public class UserDao extends NodeDao  {
 	}
 
 	protected UserDao() {
-		super(MODEL_NAME);
+		super(CLASS_NAME);
 	}
 
 	@Override
@@ -76,7 +68,6 @@ public class UserDao extends NodeDao  {
 	};
 
 	public ODocument create(String username, String password, String role) throws UserAlreadyExistsException,InvalidParameterException {
-        OrientGraphNoTx graph = DbHelper.getOGraphDatabaseConnection();
 		if (existsUserName(username)) throw new UserAlreadyExistsException("User " + username + " already exists");
 		OUser user=null;
 		if (role==null) user=db.getMetadata().getSecurity().createUser(username,password,new
@@ -86,18 +77,6 @@ public class UserDao extends NodeDao  {
 			if (orole==null) throw new InvalidParameterException("Role " + role + " does not exists");
 			user=db.getMetadata().getSecurity().createUser(username,password,new String[]{role});
 		}
-//        graph.createVertexType(CLASS_VERTEX_NAME);
-//        Vertex vertex = graph.addVertex(CLASS_VERTEX_NAME, CLASS_VERTEX_NAME);
-//        ODatabaseDocumentTx db = DbHelper.getODatabaseDocumentTxConnection();
-//		ODocument doc = new ODocument(this.MODEL_NAME);
-//		doc.field(FIELD_LINK_TO_VERTEX,vertex);
-//		doc.field(FIELD_CREATION_DATE,new Date());
-//		vertex.setProperty(FIELD_TO_DOCUMENT_FIELD,doc);
-
-//		doc.field(USER_LINK,user.getDocument().getIdentity());
-//		doc.save();
-//        graph.commit();
-//		return doc;
         return null;
 	}
 
@@ -121,18 +100,6 @@ public class UserDao extends NodeDao  {
 		
 		return resultList;
 	}
-
-//	public ODocument getBySocialUserId(UserInfo ui) throws SqlInjectionException{
-//		ODocument result=null;
-//		StringBuffer where = new StringBuffer(UserDao.ATTRIBUTES_SYSTEM).append(".");
-//		where.append(UserDao.SOCIAL_LOGIN_INFO).append("[").append(ui.getFrom()).append("]").append(".id").append(" = ?");
-//		QueryParams criteria = QueryParams.getInstance().where(where.toString()).params(new String [] {ui.getId()});
-//		List<ODocument> resultList= super.get(criteria);
-//		if (logger.isDebugEnabled()) logger.debug("Found "+resultList.size() +" elements for given tokens");
-//		if (resultList!=null && resultList.size()>0) result = resultList.get(0);
-//
-//		return result;
-//	}
 
 	public void disableUser(String username) throws UserNotFoundException{
 		db = DbHelper.reconnectAsAdmin();

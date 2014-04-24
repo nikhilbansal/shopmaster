@@ -51,9 +51,6 @@ public class UserService {
 		UserDao dao = UserDao.getInstance();
 		return dao.get(criteria);
 	}
-
-
-
 	
 	public static ODocument getCurrentUser() throws SqlInjectionException{
 		return getUserProfilebyUsername(DbHelper.getCurrentUserNameFromConnection());

@@ -75,7 +75,7 @@ alter property Shop.name notnull=true;
 
 --Mall
 CREATE CLASS Mall;
-CREATE PROPERTY Mall.address EMBEDDED Address;
+CREATE PROPERTY Mall.address LINK Address;
 CREATE PROPERTY Mall.description EMBEDDED Description;
 CREATE PROPERTY Mall.facilities EMBEDDEDLIST Facility;
 CREATE PROPERTY Mall.timing EMBEDDED Timing;
