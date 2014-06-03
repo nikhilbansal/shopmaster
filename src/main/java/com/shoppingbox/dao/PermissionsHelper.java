@@ -16,6 +16,7 @@
  */
 package com.shoppingbox.dao;
 
+import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.shoppingbox.db.DbHelper;
 import com.shoppingbox.enumerations.Permissions;
 import com.google.common.collect.ImmutableMap;
@@ -79,7 +80,7 @@ public class PermissionsHelper {
 			logger.warn("role is null! Grant command skipped");
 			return document;
 		}
-		ODatabaseRecordTx db = DbHelper.getConnection();
+        ODatabaseDocument db = DbHelper.getConnection();
 		db.getMetadata().getSecurity().allowIdentity(document, permission.toString(), role.getDocument().getIdentity());
 /*
 		Set<ORID> set = document.field(  permission.toString(), OType.LINKSET ); 
@@ -95,7 +96,7 @@ public class PermissionsHelper {
 	public static ODocument grant(ODocument document, Permissions permission,
 			OUser user) {
 		if (logger.isTraceEnabled()) logger.trace("Method Start");
-		ODatabaseRecordTx db = DbHelper.getConnection();
+        ODatabaseDocument db = DbHelper.getConnection();
 		db.getMetadata().getSecurity().allowIdentity(document, permission.toString(), user.getDocument().getIdentity());
 /*
 		Set<ORID> set = document.field(  permission.toString(), OType.LINKSET ); 
@@ -111,7 +112,7 @@ public class PermissionsHelper {
 	public static ODocument revoke(ODocument document, Permissions permission,
 			ORole role) {
 		if (logger.isTraceEnabled()) logger.trace("Method Start");
-		ODatabaseRecordTx db = DbHelper.getConnection();
+        ODatabaseDocument db = DbHelper.getConnection();
 		db.getMetadata().getSecurity().disallowIdentity(document, permission.toString(), role.getDocument().getIdentity());
 		/*
 		Set<ORID> set = document.field(  permission.toString(), OType.LINKSET ); 
@@ -127,7 +128,7 @@ public class PermissionsHelper {
 	public static ODocument revoke(ODocument document, Permissions permission,
 			OUser user) {
 		if (logger.isTraceEnabled()) logger.trace("Method Start");
-		ODatabaseRecordTx db = DbHelper.getConnection();
+        ODatabaseDocument db = DbHelper.getConnection();
 		db.getMetadata().getSecurity().disallowIdentity(document, permission.toString(), user.getDocument().getIdentity());
 /*
 		Set<ORID> set = document.field(  permission.toString(), OType.LINKSET ); 

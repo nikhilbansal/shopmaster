@@ -20,8 +20,10 @@ package com.shoppingbox.db;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentPool;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.db.record.ODatabaseRecord;
 import com.orientechnologies.orient.core.db.record.ODatabaseRecordTx;
 import com.orientechnologies.orient.core.db.tool.ODatabaseExport;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
@@ -34,11 +36,13 @@ import com.orientechnologies.orient.core.tx.OTransactionNoTx;
 import com.shoppingbox.BBConfiguration;
 import com.shoppingbox.dao.exception.SqlInjectionException;
 import com.shoppingbox.db.hook.HooksManager;
-import com.shoppingbox.exception.*;
+import com.shoppingbox.exception.RoleAlreadyExistsException;
+import com.shoppingbox.exception.RoleNotFoundException;
+import com.shoppingbox.exception.UnableToExportDbException;
+import com.shoppingbox.exception.UnableToImportDbException;
 import com.shoppingbox.service.user.RoleService;
 import com.shoppingbox.service.user.UserService;
 import com.shoppingbox.util.QueryParams;
-import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -81,12 +85,12 @@ public class DbHelper {
 	}
 	
 	public static boolean isInTransaction(){
-		 ODatabaseRecordTx db = getConnection();
+        ODatabaseDocument db = getConnection();
 		return !(db.getTransaction() instanceof OTransactionNoTx);
 	}
 
 	public static void requestTransaction(){
-		ODatabaseRecordTx db = getConnection();
+        ODatabaseDocument db = getConnection();
 		if (!isInTransaction()){
 			if (logger.isTraceEnabled()) logger.trace("Begin transaction");
 //			db.begin();
@@ -94,7 +98,7 @@ public class DbHelper {
 	}
 
 	public static void commitTransaction(){
-		ODatabaseRecordTx db = getConnection();
+        ODatabaseDocument db = getConnection();
 		if (isInTransaction()){
 			if (logger.isTraceEnabled()) logger.trace("Commit transaction");
 			//db.commit();
@@ -102,7 +106,7 @@ public class DbHelper {
 	}
 
 	public static void rollbackTransaction(){
-		ODatabaseRecordTx db = getConnection();
+        ODatabaseDocument db = getConnection();
 		if (isInTransaction()){
 			if (logger.isTraceEnabled()) logger.trace("Rollback transaction");
 			//db.rollback();
@@ -141,7 +145,7 @@ public class DbHelper {
 	 * @throws SqlInjectionException If the query is not a select statement
 	 */
 	public static OCommandRequest selectCommandBuilder(String from, boolean count, QueryParams criteria) throws SqlInjectionException{
-		ODatabaseRecordTx db =  DbHelper.getConnection();
+        ODatabaseDocument db =  DbHelper.getConnection();
 		OCommandRequest command = db.command(new OSQLSynchQuery<ODocument>(
 				selectQueryBuilder(from, count, criteria)
 				));
@@ -173,7 +177,7 @@ public class DbHelper {
 	 * @return
 	 */
 	public static OCommandRequest genericSQLStatementCommandBuilder (String theQuery){
-		ODatabaseRecordTx db =  DbHelper.getConnection();
+        ODatabaseDocument db =  DbHelper.getConnection();
 		OCommandRequest command = db.command(new OCommandSQL(theQuery));
 		return command;
 	}
@@ -202,7 +206,7 @@ public class DbHelper {
 	}
 	
 	public static void shutdownDB(boolean repopulate){
-		ODatabaseRecordTx db = null;
+        ODatabaseDocument db = null;
 
 		try{
 			//WE GET THE CONNECTION BEFORE SETTING THE SEMAPHORE
@@ -240,7 +244,7 @@ public class DbHelper {
 	}
 
 
-	public static ODatabaseRecordTx open(String username,String password) throws InvalidAppCodeException {
+	public static ODatabaseDocument open(String username,String password){
 		
 //		if (appcode==null || !appcode.equals(BBConfiguration.configuration.getString(BBConfiguration.APP_CODE)))
 //			throw new InvalidAppCodeException("Authentication info not valid or not provided: " + appcode + " is an Invalid App Code");
@@ -261,22 +265,14 @@ public class DbHelper {
 		return getConnection();
 	}
 
-	public static ODatabaseRecordTx reconnectAsAdmin (){
+	public static ODatabaseDocument reconnectAsAdmin (){
 		getConnection().close();
-		try {
-			return open (BBConfiguration.getBaasBoxAdminUsername(),BBConfiguration.getBaasBoxAdminPassword());
-		} catch (InvalidAppCodeException e) {
-			throw new RuntimeException(e);
-		}
+		return open (BBConfiguration.getBaasBoxAdminUsername(),BBConfiguration.getBaasBoxAdminPassword());
 	}
 
-	public static ODatabaseRecordTx reconnectAsAuthenticatedUser (){
+	public static ODatabaseDocument reconnectAsAuthenticatedUser (){
 		getConnection().close();
-		try {
-			return open (getCurrentHTTPUsername(),getCurrentHTTPPassword());
-		} catch (InvalidAppCodeException e) {
-			throw new RuntimeException(e);
-		}
+		return open (getCurrentHTTPUsername(),getCurrentHTTPPassword());
 	}
 	
 	public static void close(ODatabaseRecordTx db) {
@@ -287,18 +283,16 @@ public class DbHelper {
 		}else if (logger.isDebugEnabled()) logger.debug("connection already close or null");
 	}
 
-	public static ODatabaseRecordTx getConnection(){
-//        logger.info("getConnection");
-		ODatabaseRecordTx db = null;
+	public static ODatabaseDocument getConnection(){
+        ODatabaseDocument db = null;
 		try {
-			db=(ODatabaseRecordTx)ODatabaseRecordThreadLocal.INSTANCE.get();
-		}catch (ODatabaseException e){
-			//swallow...
-		}
+            db = (ODatabaseDocument)ODatabaseRecordThreadLocal.INSTANCE.get().getDatabaseOwner();
+        }catch (ODatabaseException e){
+            throw e;
+        }
 		return db;
 	}
 
-	
 	public static String getCurrentHTTPPassword(){
 		//return (String) Http.Context.current().args.get("password");
         return null;
@@ -332,7 +326,7 @@ public class DbHelper {
 	
 	public static void updateDefaultUsers() throws Exception{
 		if (logger.isTraceEnabled()) logger.trace("Method Start");
-		ODatabaseRecordTx db = DbHelper.getConnection();
+        ODatabaseDocument db = DbHelper.getConnection();
 		OUser user=db.getMetadata().getSecurity().getUser(BBConfiguration.getBaasBoxUsername());
 		user.setPassword(BBConfiguration.getBaasBoxPassword());
 		user.save();
@@ -351,7 +345,7 @@ public class DbHelper {
 		if (logger.isTraceEnabled()) logger.trace("Method End");
 	}
 
-	public static void populateDB(ODatabaseRecordTx db) throws IOException{
+	public static void populateDB(ODatabaseDocument db) throws IOException{
         logger.info("Populating the db...");
         InputStream is = DbHelper.class.getClassLoader().getResourceAsStream(SCRIPT_FILE_NAME);
 		List<String> script=IOUtils.readLines(is, "UTF-8");
@@ -365,7 +359,7 @@ public class DbHelper {
 		}
 	}
 
-	public static void setupDb(ODatabaseRecordTx db) throws Exception{
+	public static void setupDb(ODatabaseDocument db) throws Exception{
 		logger.info("Creating default roles...");
 		DbHelper.createDefaultRoles();
 		logger.info("Creating default users...");
@@ -376,7 +370,7 @@ public class DbHelper {
 	}
 
 	public static void exportData(String appcode,OutputStream os) throws UnableToExportDbException{
-		ODatabaseRecordTx db = null;
+        ODatabaseDocument db = null;
 		try{
             logger.info("open");
             //db = open(appcode, BBConfiguration.getBaasBoxAdminUsername(), BBConfiguration.getBaasBoxAdminPassword());
@@ -412,7 +406,7 @@ public class DbHelper {
 	}
 	
 	public static void importData(String appcode,String importData) throws UnableToImportDbException{
-		ODatabaseRecordTx db = null;
+        ODatabaseDocument db = null;
 		java.io.File f = null;
 		try{
 			logger.info("Initializing restore operation..:");
@@ -433,8 +427,8 @@ public class DbHelper {
 			db.getMetadata().getSchema().dropClass("OFunction");
 			 db.getMetadata().getSchema().dropClass("OSchedule");
 			 db.getMetadata().getSchema().dropClass("ORIDs");
-			   ODatabaseDocumentTx dbd = new ODatabaseDocumentTx(db);
-			ODatabaseImport oi = new ODatabaseImport(dbd, f.getAbsolutePath(), new OCommandOutputListener() {
+			   //ODatabaseDocumentTx dbd = new ODatabaseDocumentTx(db);
+			ODatabaseImport oi = new ODatabaseImport(db, f.getAbsolutePath(), new OCommandOutputListener() {
 				@Override
 				public void onMessage(String m) {
 					logger.info("Restore db: " + m);
@@ -468,13 +462,9 @@ public class DbHelper {
 			logger.info("...restore terminated");
 		}
 	}
-
-	public static OrientGraphNoTx getOGraphDatabaseConnection(){
-		return new OrientGraphNoTx(getODatabaseDocumentTxConnection());
-	}
 	
-	public static ODatabaseDocumentTx getODatabaseDocumentTxConnection(){
-		return new ODatabaseDocumentTx(getConnection());
+	public static ODatabaseDocument getODatabaseDocumentTxConnection(){
+		return getConnection();
 	}
 	
 }

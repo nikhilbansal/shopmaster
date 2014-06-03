@@ -17,6 +17,7 @@
 package com.shoppingbox.db.hook;
 
 
+import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.ODatabaseRecordTx;
 import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.hook.ORecordHook.HOOK_POSITION;
@@ -26,16 +27,19 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class HooksManager {
     final static Logger logger = LoggerFactory.getLogger(HooksManager.class);
-	public static void registerAll(ODatabaseRecordTx db){
+	public static void registerAll(ODatabaseDocument db){
 		if (logger.isTraceEnabled()) logger.trace("Method Start");
 		if (logger.isDebugEnabled()) logger.debug("Registering hooks...");
 		//we have to check if the hooks have been already registered since the connections could be reused due to pool 
-		Set<ORecordHook> hooks = db.getHooks();
-		Iterator<ORecordHook> it =hooks.iterator();
+		Map<ORecordHook, HOOK_POSITION> hooks = db.getHooks();
+        //Set<ORecordHook> hooks = db.getHooks();
+		Iterator<ORecordHook> it =hooks.keySet().iterator();
+        //Iterator<ORecordHook> it =hooks.iterator();
 		boolean register=true;
 		while (it.hasNext()){		
 			if (it.next() instanceof BaasBoxHook) {
@@ -53,13 +57,15 @@ public class HooksManager {
 		if (logger.isTraceEnabled()) logger.trace("Method End");
 	}
 	
-	public static void unregisteredAll(ODatabaseRecordTx db){
+	public static void unregisteredAll(ODatabaseDocument db){
 
 		if (logger.isTraceEnabled()) logger.trace("Method Start");
 		
 		if (logger.isDebugEnabled()) logger.debug("unregistering hooks...");
-		Set<ORecordHook> hooks = db.getHooks();
-		List hs = IteratorUtils.toList(hooks.iterator());
+		Map<ORecordHook, HOOK_POSITION> hooks = db.getHooks();
+        //Set<ORecordHook> hooks = db.getHooks();
+		List hs = IteratorUtils.toList(hooks.keySet().iterator());
+        //List hs = IteratorUtils.toList(hooks.iterator());
 		Iterator<ORecordHook> it =hs.iterator();
 		while (it.hasNext()){
 			ORecordHook h = it.next();

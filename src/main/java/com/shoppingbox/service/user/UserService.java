@@ -1,7 +1,7 @@
 package com.shoppingbox.service.user;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.orientechnologies.orient.core.db.record.ODatabaseRecordTx;
+import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.security.ORole;
@@ -9,7 +9,6 @@ import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.shoppingbox.BBConfiguration;
 import com.shoppingbox.dao.GenericDao;
-import com.shoppingbox.dao.ResetPwdDao;
 import com.shoppingbox.dao.RoleDao;
 import com.shoppingbox.dao.UserDao;
 import com.shoppingbox.dao.exception.InvalidClassException;
@@ -150,7 +149,7 @@ public class UserService {
             JsonNode friendsAttributes,
             JsonNode appUsersAttributes,boolean generated) throws Exception {
 
-        ODatabaseRecordTx db = DbHelper.getConnection();
+        ODatabaseDocument db = DbHelper.getConnection();
         UserDao dao = UserDao.getInstance();
         try {
             if (role == null) dao.create(username, password);
@@ -163,7 +162,7 @@ public class UserService {
     }
 
 	public static void changePasswordCurrentUser(String newPassword) {
-		ODatabaseRecordTx db = DbHelper.getConnection();
+        ODatabaseDocument db = DbHelper.getConnection();
 		String username=db.getUser().getName();
 		db = DbHelper.reconnectAsAdmin();
 		db.getMetadata().getSecurity().getUser(username).setPassword(newPassword).save();
@@ -171,7 +170,7 @@ public class UserService {
 	}
 	
 	public static void changePassword(String username, String newPassword) throws SqlInjectionException, UserNotFoundException {
-		ODatabaseRecordTx db=DbHelper.getConnection();
+        ODatabaseDocument db=DbHelper.getConnection();
 		db = DbHelper.reconnectAsAdmin();
 		UserDao udao=UserDao.getInstance();
 		ODocument user = udao.getByUserName(username);
@@ -191,7 +190,7 @@ public class UserService {
 		ODocument user = UserDao.getInstance().getByUserName(username);
 		ODocument ouser = ((ODocument) user.field("user"));
 		ouser.field("password",newPassword).save();
-		ResetPwdDao.getInstance().setResetPasswordDone(username);
+		//ResetPwdDao.getInstance().setResetPasswordDone(username);
 	}
 
 	public static void removeSocialLoginTokens(ODocument user , String socialNetwork) throws ODatabaseException{

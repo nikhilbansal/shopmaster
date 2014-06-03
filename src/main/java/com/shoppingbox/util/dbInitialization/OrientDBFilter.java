@@ -4,11 +4,10 @@ package com.shoppingbox.util.dbInitialization;
  * Created by nikhil.bansal on 21/04/14.
  */
 
+import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentPool;
 import com.shoppingbox.BBConfiguration;
 import com.shoppingbox.Global;
-import com.shoppingbox.db.DbHelper;
-import com.shoppingbox.exception.InvalidAppCodeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,22 +24,20 @@ public class OrientDBFilter implements Filter {
         global.beforeStart();
         global.onLoadConfig();
         global.onStart();
-        return;
     }
 
     public void doFilter(ServletRequest request, ServletResponse response,
                          FilterChain chain) throws IOException, ServletException {
-        try {
-            DbHelper.open(BBConfiguration.configuration.getString(BBConfiguration.ADMIN_USERNAME), BBConfiguration.configuration.getString(BBConfiguration.ADMIN_PASSWORD));
-        } catch (InvalidAppCodeException e) {
-            e.printStackTrace();
-        }
-        logger.info("doFilter return the execution to the servlet");
+        //DbHelper.open(BBConfiguration.configuration.getString(BBConfiguration.ADMIN_USERNAME), BBConfiguration.configuration.getString(BBConfiguration.ADMIN_PASSWORD));
+        ODatabaseDocument database = ODatabaseDocumentPool.global().acquire("plocal:" + BBConfiguration.getDBDir(), BBConfiguration.configuration.getString(BBConfiguration.ADMIN_USERNAME), BBConfiguration.configuration.getString(BBConfiguration.ADMIN_PASSWORD));
+        //ODatabaseDocument database = new ODatabaseDocumentTx("plocal:" + BBConfiguration.getDBDir()).open(BBConfiguration.configuration.getString(BBConfiguration.ADMIN_USERNAME), BBConfiguration.configuration.getString(BBConfiguration.ADMIN_PASSWORD));
+        logger.info("doFilter get the execution to the servlet");
         try{
             chain.doFilter(request, response);
         } finally {
             logger.info("doFilter return connection to pool");
-            DbHelper.close(DbHelper.getConnection());
+            //DbHelper.close(DbHelper.getConnection());
+            database.close();
         }
     }
 

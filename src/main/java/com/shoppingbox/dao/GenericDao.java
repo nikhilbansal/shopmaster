@@ -16,6 +16,7 @@
  */
 package com.shoppingbox.dao;
 
+import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.shoppingbox.dao.exception.InvalidCriteriaException;
 import com.shoppingbox.dao.exception.SqlInjectionException;
 import com.shoppingbox.db.DbHelper;
@@ -53,7 +54,7 @@ public class GenericDao {
 	}
 	
 	public ODocument get(ORID rid) {
-		ODatabaseRecordTx db =DbHelper.getConnection();
+        ODatabaseDocument db =DbHelper.getConnection();
 		if (logger.isTraceEnabled()) logger.trace("Method Start");
 		ODocument doc=db.load(rid);
 		if (logger.isTraceEnabled()) logger.trace("Method End");
@@ -65,7 +66,7 @@ public class GenericDao {
 	}
 	
 	public ORID getRidByUUID(String id){
-		ODatabaseRecordTx db =DbHelper.getConnection();
+        ODatabaseDocument db =DbHelper.getConnection();
 		OIndex<?> index = db.getMetadata().getIndexManager().getIndex("_BB_Node.id");
 		ORID rid = (ORID) index.get(id);  
 		return rid;
@@ -85,7 +86,7 @@ public class GenericDao {
 
 
 	public void executeCommand(String commandString, Object[] params) {
-		ODatabaseRecordTx db =  DbHelper.getConnection();
+        ODatabaseDocument db =  DbHelper.getConnection();
 		OCommandRequest command=db.command(new OCommandSQL(commandString));
 		command.execute(params);
 	}

@@ -2,13 +2,13 @@ package com.shoppingbox;
 
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentPool;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
-import com.orientechnologies.orient.core.db.record.ODatabaseRecordTx;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.shoppingbox.db.DbHelper;
 import com.shoppingbox.service.storage.StatisticsService;
-import com.tinkerpop.blueprints.impls.orient.OrientGraph;
+import com.shoppingbox.util.IdentifiersGlobal;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,8 +59,9 @@ public class Global {
                 db.getLevel1Cache().clear();
                 if (!db.getURL().startsWith("remote:") && !db.exists()) {
                     logger.info("DB does not exist, BaasBox will create a new one");
-                    OrientGraph graph = new OrientGraph(db.getURL());
-                    graph.shutdown();
+//                    OrientGraph graph = new OrientGraph(db.getURL());
+//                    graph.shutdown();
+                    db.create();
                     justCreated = true;
                 } else {
                     logger.info("DB already exists");
@@ -83,7 +84,7 @@ public class Global {
         logger.debug("Global.onStart() called");
         //Orient.instance().shutdown();
 
-        ODatabaseRecordTx db = null;
+        ODatabaseDocument db = null;
         try {
             if (justCreated) {
                 try {
@@ -99,6 +100,10 @@ public class Global {
                 }
                 justCreated = false;
             }
+            db = DbHelper.open("admin", "admin");
+            IdentifiersGlobal.INSTANCE.initialize();
+            logger.info("IdentifiersGlobal : \n" + IdentifiersGlobal.INSTANCE.toString());
+            db.close();
         } catch (Throwable e) {
             logger.error("!! Error initializing BaasBox!", e);
             logger.error("Abnormal BaasBox termination.");
@@ -110,22 +115,29 @@ public class Global {
         logger.info("BaasBox is shutting down...");
         try {
 
-            OrientGraph db = null;
+            //OrientGraph db = null;
+            ODatabaseDocument db = null;
             try {
-                if (DbHelper.getConnection() == null || DbHelper.getConnection().isClosed()) {
-                    DbHelper.open("admin", "admin");
+                try{
+                    db = DbHelper.getConnection();
+                }catch (Exception e){
+                    //Do nothing
+                }finally{
+                    db = DbHelper.open("admin", "admin");
                 }
-                db = new OrientGraph(DbHelper.getODatabaseDocumentTxConnection());
-                if (db.getRawGraph().exists()) {
-                    logger.info("DB exists, Dropping it");
-                    db.getRawGraph().drop();
-                }
+                if(db.exists()) db.drop();
+//                db = new OrientGraph(DbHelper.getODatabaseDocumentTxConnection());
+//                if (db.getRawGraph().exists()) {
+//                    logger.info("DB exists, Dropping it");
+//                    db.getRawGraph().drop();
+//                }
             } catch (Throwable e) {
                 logger.error("!! Error initializing BaasBox!", e);
                 logger.error(ExceptionUtils.getFullStackTrace(e));
                 throw e;
             } finally {
-                if (db != null && !db.getRawGraph().isClosed()) db.getRawGraph().close();
+//                if (db != null && !db.getRawGraph().isClosed()) db.getRawGraph().close();
+                if(db != null && db.isClosed()) db.close();
             }
 
             logger.info("Closing the DB connections...");

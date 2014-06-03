@@ -17,6 +17,7 @@
 package com.shoppingbox.dao;
 
 
+import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.ODatabaseRecordTx;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.shoppingbox.db.DbHelper;
@@ -33,12 +34,12 @@ public class RoleDao {
 		public static final String  READER_BASE_ROLE = "reader";
 		
 		public static ORole getRole(String name){
-			ODatabaseRecordTx db = DbHelper.getConnection();
+            ODatabaseDocument db = DbHelper.getConnection();
 			return db.getMetadata().getSecurity().getRole(name);
 		}
 		
 		public static ORole createRole(String name,String inheritedRoleName){
-			ODatabaseRecordTx db = DbHelper.getConnection();
+            ODatabaseDocument db = DbHelper.getConnection();
 			ORole inheritedRole = db.getMetadata().getSecurity().getRole(inheritedRoleName);
 			final ORole role =  db.getMetadata().getSecurity().createRole(name,inheritedRole.getMode());
 			role.getDocument().field(FIELD_INHERITED,inheritedRole.getDocument().getRecord());
@@ -47,7 +48,7 @@ public class RoleDao {
 		}
 		
 		public static ORole createRole(String name,ORole.ALLOW_MODES mode,Map rules){
-			ODatabaseRecordTx db = DbHelper.getConnection();
+            ODatabaseDocument db = DbHelper.getConnection();
 			final ORole role =  db.getMetadata().getSecurity().createRole(name,mode);
 			role.getDocument().field("rules",rules);
 			role.save();

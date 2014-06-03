@@ -1,37 +1,40 @@
 package com.shoppingbox.dao;
 
 import com.orientechnologies.orient.core.command.OCommandRequest;
-import com.orientechnologies.orient.core.db.record.ODatabaseRecordTx;
+import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.OSQLHelper;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.shoppingbox.dao.exception.*;
 import com.shoppingbox.db.DbHelper;
+import com.shoppingbox.models.Identifier;
+import com.shoppingbox.models.Identifiers;
+import com.shoppingbox.models.Pair;
+import com.shoppingbox.util.IdentifiersGlobal;
 import com.shoppingbox.util.QueryParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
 
-public abstract class NodeDao  {
+public abstract class NodeDao{
 
     final static Logger logger = LoggerFactory.getLogger(NodeDao.class);
-    private static final String INDEX_SEPARATOR = ".";
 
     public final String CLASS_NAME;
 
-	public ODatabaseRecordTx db;
+	public ODatabaseDocument db;
 
 	public NodeDao(String className) {
 		this.CLASS_NAME = className;
-		this.db=DbHelper.getConnection();
+		this.db = DbHelper.getConnection();
 	}
 
 	public void checkModelDocument(ODocument doc) throws InvalidClassException {
@@ -85,7 +88,7 @@ public abstract class NodeDao  {
         return null;
 	}
 
-	protected ODocument save(ODocument document) throws InvalidClassException {
+	public ODocument save(ODocument document) throws InvalidClassException {
 		if (logger.isTraceEnabled()) logger.trace("Method Start");
 		checkModelDocument(document);
 		ODocument savedODocument = document.save();
@@ -202,12 +205,30 @@ public abstract class NodeDao  {
 		if (logger.isTraceEnabled()) logger.trace("Method End");
 	}
 
-    public OIndex<?> getIndex(String indexName){
-        OIndex<?> idx = db.getMetadata().getIndexManager().getIndex(CLASS_NAME + INDEX_SEPARATOR + indexName);
-        return idx;
+    public Identifiers getIdentifiers(ODocument doc) {
+        Map<String, List<IdentifiersGlobal.IdentifierCsv>> identifierMap = IdentifiersGlobal.INSTANCE.idenfifierMap;
+        if(identifierMap == null){
+            logger.warn("identifierMap is null, trying to reinitialize");
+            IdentifiersGlobal.INSTANCE.initialize();
+            identifierMap = IdentifiersGlobal.INSTANCE.idenfifierMap;
+            if(identifierMap == null){
+                logger.error("identifierMap is null even after re initialization");
+                throw new IllegalStateException("identifierMap is null even after re initialization");
+            }
+        }
+        if(!identifierMap.containsKey(this.CLASS_NAME)) return null;
+        List<IdentifiersGlobal.IdentifierCsv> identifiersGlobalList = identifierMap.get(this.CLASS_NAME);
+        Identifiers identifiers = new Identifiers();
+        for(IdentifiersGlobal.IdentifierCsv identifierCsv : identifiersGlobalList){
+            Identifier identifier = new Identifier();
+            for(String eachId : identifierCsv.getIdentifier()){
+                Object eachIdValue = doc.field(eachId);
+                if(eachIdValue == null) throw new IllegalArgumentException(String.format("Doc %s doesn't contain id attribute %s", doc, eachId));
+                identifier.getIdentifierPairs().add(new Pair(eachId, eachIdValue));
+            }
+            if(!identifier.getIdentifierPairs().isEmpty()) identifiers.getIdentifiers().add(identifier);
+        }
+        return identifiers;
     }
 
-	public void getIndex(){
-
-    }
 }

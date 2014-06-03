@@ -2,23 +2,22 @@ package com.shoppingbox.dao;
 
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.shoppingbox.dao.exception.InvalidClassException;
+import com.shoppingbox.util.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Created by nikhil.bansal on 18/04/14.
  */
-public class ShopDao extends NodeDao{
-    final static Logger logger = LoggerFactory.getLogger(ShopDao.class);
+public class BrandDao extends NodeDao{
+    final static Logger logger = LoggerFactory.getLogger(BrandDao.class);
 
-    public final static String CLASS_NAME="Shop";
-
-    public static ShopDao getInstance(){
-        return new ShopDao();
+    public static BrandDao getInstance(){
+        return new BrandDao();
     }
 
-    protected ShopDao() {
-        super(CLASS_NAME);
+    protected BrandDao() {
+        super(Constants.BRAND_CLASS_NAME);
     }
 
     public ODocument upsert(ODocument shopODocument) throws InvalidClassException {

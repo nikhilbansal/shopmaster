@@ -13,7 +13,6 @@ public class App
             global.beforeStart();
             global.onLoadConfig();
             global.onStart();
-            global.onStop();
 //            ODatabaseRecordTx db = DbHelper.open(BBConfiguration.getAPPCODE(), BBConfiguration.getBaasBoxAdminUsername(), BBConfiguration.getBaasBoxAdminPassword());
 //            new ExportJob("/Users/nikhil.bansal/Downloads/orientdb-community-1.7-rc1/backup.zip", "1234567890").run();
 //        } catch (InvalidAppCodeException e) {
